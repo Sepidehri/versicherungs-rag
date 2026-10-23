@@ -8,7 +8,15 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+def _project_root() -> Path:
+    """Repository root for editable installs; the working directory otherwise (e.g. /app in Docker,
+    where the package lives in site-packages and data/ sits next to the process)."""
+    source_root = Path(__file__).resolve().parents[2]
+    return source_root if (source_root / "pyproject.toml").exists() else Path.cwd()
+
+
+PROJECT_ROOT = _project_root()
 
 
 class RetrievalMode(StrEnum):
