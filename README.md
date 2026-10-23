@@ -4,7 +4,7 @@
 
 Ask a question in plain German, such as *"Mein Koffer kam 8 Stunden zu spät an. Was wird ersetzt?"*, and get a short answer that cites the exact article it comes from. If the documents don't answer the question, the assistant says so instead of guessing.
 
-![Python](https://img.shields.io/badge/python-3.11-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://github.com/Sepidehri/versicherungs-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/Sepidehri/versicherungs-rag/actions/workflows/ci.yml) ![Python](https://img.shields.io/badge/python-3.11-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ```
 $ vrag ask "Ist ein Marderschaden in der Teilkasko versichert?"
