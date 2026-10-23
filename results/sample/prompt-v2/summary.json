@@ -1,0 +1,58 @@
+{
+  "config": {
+    "Fragen": 41,
+    "Retrieval": "hybrid_rerank",
+    "Top-k": 4,
+    "Embedding": "jinaai/jina-embeddings-v2-base-de",
+    "Reranker": "jinaai/jina-reranker-v2-base-multilingual",
+    "Chunking": "section",
+    "Judge": "–",
+    "Prompt": "v2"
+  },
+  "models": [
+    {
+      "model": "qwen2.5-3b",
+      "accuracy": 0.6829268292682927,
+      "accuracy_answerable": 0.6944444444444444,
+      "fact_recall": 0.7361111111111112,
+      "citation_accuracy": 0.9166666666666666,
+      "refusal_accuracy": 0.6,
+      "false_refusal_rate": 0.19444444444444445,
+      "faithfulness": null,
+      "latency_p50_s": 25.39104720018804,
+      "latency_p95_s": 36.188216800102964,
+      "avg_output_tokens": 32.73170731707317,
+      "cost_per_1000_questions_usd": 0.0,
+      "errors": 0,
+      "num_cases": 41,
+      "by_category": {
+        "dokumentübergreifend": 0.5,
+        "fakt": 0.9523809523809523,
+        "grenzfall": 0.3076923076923077,
+        "unbeantwortbar": 0.6
+      }
+    },
+    {
+      "model": "llama3.2-3b",
+      "accuracy": 0.8536585365853658,
+      "accuracy_answerable": 0.8333333333333334,
+      "fact_recall": 0.8472222222222222,
+      "citation_accuracy": 0.75,
+      "refusal_accuracy": 1.0,
+      "false_refusal_rate": 0.0,
+      "faithfulness": null,
+      "latency_p50_s": 26.982168399961665,
+      "latency_p95_s": 37.10737590002827,
+      "avg_output_tokens": 36.58536585365854,
+      "cost_per_1000_questions_usd": 0.0,
+      "errors": 0,
+      "num_cases": 41,
+      "by_category": {
+        "dokumentübergreifend": 1.0,
+        "fakt": 0.9523809523809523,
+        "grenzfall": 0.6153846153846154,
+        "unbeantwortbar": 1.0
+      }
+    }
+  ]
+}

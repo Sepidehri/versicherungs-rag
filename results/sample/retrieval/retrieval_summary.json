@@ -1,0 +1,65 @@
+{
+  "config": {
+    "Fragen (beantwortbar)": 36,
+    "Top-k": 4,
+    "Reranker": "jinaai/jina-reranker-v2-base-multilingual"
+  },
+  "results": [
+    {
+      "name": "fixed \u00b7 bm25",
+      "hit_rate": 0.9722222222222222,
+      "mrr": 0.9050925925925924,
+      "latency_ms_p50": 0.8988501504063606,
+      "num_cases": 36
+    },
+    {
+      "name": "fixed \u00b7 dense \u00b7 jina-embeddings-v2-base-de",
+      "hit_rate": 0.9722222222222222,
+      "mrr": 0.9722222222222222,
+      "latency_ms_p50": 95.83999996539205,
+      "num_cases": 36
+    },
+    {
+      "name": "fixed \u00b7 hybrid \u00b7 jina-embeddings-v2-base-de",
+      "hit_rate": 1.0,
+      "mrr": 0.9722222222222222,
+      "latency_ms_p50": 93.96179998293519,
+      "num_cases": 36
+    },
+    {
+      "name": "fixed \u00b7 hybrid_rerank \u00b7 jina-embeddings-v2-base-de",
+      "hit_rate": 1.0,
+      "mrr": 0.9861111111111112,
+      "latency_ms_p50": 7296.368250041269,
+      "num_cases": 36
+    },
+    {
+      "name": "section \u00b7 bm25",
+      "hit_rate": 0.9166666666666666,
+      "mrr": 0.8518518518518519,
+      "latency_ms_p50": 0.39585004560649395,
+      "num_cases": 36
+    },
+    {
+      "name": "section \u00b7 dense \u00b7 jina-embeddings-v2-base-de",
+      "hit_rate": 1.0,
+      "mrr": 0.9027777777777778,
+      "latency_ms_p50": 84.54794995486736,
+      "num_cases": 36
+    },
+    {
+      "name": "section \u00b7 hybrid \u00b7 jina-embeddings-v2-base-de",
+      "hit_rate": 1.0,
+      "mrr": 0.9282407407407407,
+      "latency_ms_p50": 87.23785006441176,
+      "num_cases": 36
+    },
+    {
+      "name": "section \u00b7 hybrid_rerank \u00b7 jina-embeddings-v2-base-de",
+      "hit_rate": 1.0,
+      "mrr": 1.0,
+      "latency_ms_p50": 6656.015749904327,
+      "num_cases": 36
+    }
+  ]
+}

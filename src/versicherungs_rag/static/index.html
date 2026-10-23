@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Versicherungs-RAG</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#1d2433; --muted:#5d6779; --accent:#1f5fbf; --border:#dde2ea; --warn:#a15c00; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:20px 24px 8px; max-width:1200px; margin:auto; }
+  header h1 { margin:0; font-size:22px; }
+  header p { margin:4px 0 0; color:var(--muted); }
+  main { max-width:1200px; margin:auto; padding:8px 24px 40px; }
+  form { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  textarea { width:100%; min-height:64px; font:inherit; padding:10px; border:1px solid var(--border); border-radius:8px; resize:vertical; }
+  .row { display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-top:12px; }
+  .models label { margin-right:12px; white-space:nowrap; }
+  .models label.off { color:var(--muted); }
+  select, button { font:inherit; padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:#fff; }
+  button { background:var(--accent); color:#fff; border:none; padding:8px 18px; cursor:pointer; }
+  button:disabled { opacity:.6; cursor:wait; }
+  .examples { margin-top:10px; color:var(--muted); font-size:13px; }
+  .examples a { color:var(--accent); cursor:pointer; margin-right:10px; }
+  #results { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-top:16px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .card h2 { font-size:15px; margin:0 0 8px; display:flex; justify-content:space-between; gap:8px; }
+  .meta { color:var(--muted); font-size:12px; font-weight:normal; }
+  .answer { white-space:pre-wrap; }
+  .refused { color:var(--warn); }
+  .error { color:#b00020; }
+  details { margin-top:12px; font-size:13px; }
+  details li { margin-bottom:8px; }
+  .src { color:var(--muted); }
+  .cite { color:var(--accent); font-weight:600; }
+  footer { color:var(--muted); font-size:12px; text-align:center; padding-bottom:24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Versicherungs-RAG</h1>
+  <p>Fragen zu Versicherungsbedingungen – mit Quellenangaben und Modellvergleich.</p>
+</header>
+<main>
+  <form id="form">
+    <textarea id="question" placeholder="z. B. Ist ein Marderschaden in der Teilkasko versichert?" required></textarea>
+    <div class="row">
+      <div class="models" id="models">Modelle werden geladen…</div>
+    </div>
+    <div class="row">
+      <label>Retrieval:
+        <select id="mode">
+          <option value="hybrid_rerank">Hybrid + Reranking</option>
+          <option value="hybrid">Hybrid (BM25 + Vektor)</option>
+          <option value="dense">Nur Vektor</option>
+          <option value="bm25">Nur BM25</option>
+        </select>
+      </label>
+      <button id="submit" type="submit">Fragen</button>
+    </div>
+    <div class="examples">Beispiele:
+      <a>Wie hoch ist der Selbstbehalt in der Vollkasko?</a>
+      <a>Mein Koffer kam 8 Stunden zu spät an. Was wird ersetzt?</a>
+      <a>Wie hoch ist die monatliche Prämie der Haushaltsversicherung?</a>
+    </div>
+  </form>
+  <div id="results"></div>
+</main>
+<footer>Demo mit fiktiven Musterbedingungen der „Beispiel Versicherung AG“. Keine Rechts- oder Versicherungsberatung.</footer>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function loadModels() {
+  const models = await (await fetch("/models")).json();
+  $("models").innerHTML = models.map((m, i) => `
+    <label class="${m.available ? "" : "off"}" title="${esc(m.available ? m.description : m.status)}">
+      <input type="checkbox" name="model" value="${esc(m.name)}" ${m.available ? "" : "disabled"}
+        ${m.available && i < 3 ? "checked" : ""}> ${esc(m.name)}
+    </label>`).join("");
+}
+
+function renderCard(r) {
+  if (r.error) return `<div class="card"><h2>${esc(r.model)}</h2><div class="error">${esc(r.error)}</div></div>`;
+  const answer = esc(r.answer).replace(/\[(\d+(?:\s*[,;]\s*\d+)*)\]/g, '<span class="cite">[$1]</span>');
+  const tokens = r.output_tokens != null ? ` · ${r.output_tokens} Tokens` : "";
+  const sources = r.contexts.map((c) => `<li><b>[${c.rank}]</b> <span class="src">${esc(c.label)} (Score ${c.score})</span><br>${esc(c.text)}</li>`).join("");
+  return `<div class="card">
+    <h2>${esc(r.model)} <span class="meta">${r.generation_latency_s.toFixed(1)} s${tokens}</span></h2>
+    <div class="answer ${r.refused ? "refused" : ""}">${answer}</div>
+    <details><summary>Quellen (${r.contexts.length})</summary><ol style="padding-left:16px;list-style:none">${sources}</ol></details>
+  </div>`;
+}
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const models = [...document.querySelectorAll("input[name=model]:checked")].map((x) => x.value);
+  if (!models.length) { alert("Bitte mindestens ein Modell auswählen."); return; }
+  $("submit").disabled = true;
+  $("results").innerHTML = '<div class="card">Suche und generiere Antworten…</div>';
+  try {
+    const res = await fetch("/compare", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({question: $("question").value, models, retrieval_mode: $("mode").value}),
+    });
+    const data = await res.json();
+    $("results").innerHTML = res.ok ? data.map(renderCard).join("") : `<div class="card error">${esc(JSON.stringify(data.detail))}</div>`;
+  } catch (err) {
+    $("results").innerHTML = `<div class="card error">${esc(err)}</div>`;
+  } finally {
+    $("submit").disabled = false;
+  }
+});
+
+document.querySelectorAll(".examples a").forEach((a) => a.addEventListener("click", () => { $("question").value = a.textContent; }));
+loadModels();
+</script>
+</body>
+</html>

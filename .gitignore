@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.env
+.cache/
+
+# Generated artefacts: rebuild with `vrag ingest` / `vrag eval`
+data/index/
+results/*
+!results/README.md
+!results/sample/

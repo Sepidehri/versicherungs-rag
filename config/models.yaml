@@ -1,0 +1,36 @@
+# Models available to the pipeline, the API and the evaluation.
+# Providers: ollama (local open-source), anthropic, openai (any OpenAI-compatible endpoint), extractive (no LLM).
+#
+# Prices are USD per million tokens. They are left empty on purpose: fill them in from
+# the provider's current price list and the report computes cost per 1000 questions.
+
+models:
+  - name: baseline-extractive
+    provider: extractive
+    description: Kein LLM – gibt die passendsten Sätze aus dem Kontext zurück (Untergrenze)
+
+  - name: qwen2.5-3b
+    provider: ollama
+    model: qwen2.5:3b
+    description: Qwen 2.5 3B (Alibaba, Apache 2.0) – lokal über Ollama
+
+  - name: llama3.2-3b
+    provider: ollama
+    model: llama3.2:3b
+    description: Llama 3.2 3B (Meta) – lokal über Ollama
+
+  - name: claude-haiku
+    provider: anthropic
+    model: claude-haiku-5-5
+    api_key_env: ANTHROPIC_API_KEY
+    price_input_per_mtok:
+    price_output_per_mtok:
+    description: Claude Haiku über die Anthropic API
+
+  # Any OpenAI-compatible endpoint (OpenAI, Azure OpenAI v1, vLLM, LM Studio):
+  # - name: azure-gpt
+  #   provider: openai
+  #   model: <deployment-name>
+  #   base_url: https://<resource>.openai.azure.com/openai/v1/
+  #   api_key_env: AZURE_OPENAI_API_KEY
+  #   description: GPT model on Azure OpenAI
